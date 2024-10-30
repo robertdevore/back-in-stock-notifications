@@ -26,6 +26,9 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
+// Include the custom waitlist table class
+require_once plugin_dir_path( __FILE__ ) . 'class-bisn-waitlist-table.php';
+
 require 'plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
@@ -208,33 +211,25 @@ function bisn_add_admin_menu() {
 add_action( 'admin_menu', 'bisn_add_admin_menu' );
 
 /**
- * Render the admin waitlist page.
+ * Render the admin waitlist page using WP_List_Table.
  * 
  * @since  1.0.0
  * @return void
  */
 function bisn_waitlist_page() {
-    global $wpdb;
-    $table_name    = $wpdb->prefix . 'bisn_waitlist';
-    $waitlist_data = $wpdb->get_results( "SELECT * FROM $table_name" );
-
-    echo '<div class="wrap">';
-    echo '<h1>' . esc_html__( 'Back In Stock Waitlist', 'bisn' ) . '</h1>';
-    echo '<table class="widefat fixed">';
-    echo '<thead><tr><th>' . esc_html__( 'Product', 'bisn' ) . '</th><th>' . esc_html__( 'Email', 'bisn' ) . '</th><th>' . esc_html__( 'Date Added', 'bisn' ) . '</th></tr></thead>';
-    echo '<tbody>';
-
-    foreach ( $waitlist_data as $row ) {
-        echo '<tr>';
-        echo '<td>' . esc_html( get_the_title( $row->product_id ) ) . '</td>';
-        echo '<td>' . esc_html( $row->email ) . '</td>';
-        echo '<td>' . esc_html( $row->date_added ) . '</td>';
-        echo '</tr>';
-    }
-
-    echo '</tbody>';
-    echo '</table>';
-    echo '</div>';
+    // Display the custom WP List Table
+    $waitlist_table = new BISN_Waitlist_Table();
+    $waitlist_table->prepare_items();
+    ?>
+    <div class="wrap">
+        <h1><?php esc_html_e( 'Back In Stock Waitlist', 'bisn' ); ?></h1>
+        <form method="post">
+            <?php
+            $waitlist_table->display();
+            ?>
+        </form>
+    </div>
+    <?php
 }
 
 /**
