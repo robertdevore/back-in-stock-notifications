@@ -211,24 +211,72 @@ function bisn_add_admin_menu() {
 add_action( 'admin_menu', 'bisn_add_admin_menu' );
 
 /**
- * Render the admin waitlist page using WP_List_Table.
+ * Render the admin waitlist page with tab navigation.
  * 
  * @since  1.0.0
  * @return void
  */
 function bisn_waitlist_page() {
-    // Display the custom WP List Table
-    $waitlist_table = new BISN_Waitlist_Table();
-    $waitlist_table->prepare_items();
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e( 'Back In Stock Waitlist', 'bisn' ); ?></h1>
-        <form method="post">
+        <h1><?php esc_html_e( 'Back In Stock Notifications', 'bisn' ); ?></h1>
+        
+        <!-- Tabs Navigation -->
+        <h2 class="nav-tab-wrapper">
+            <a href="#dashboard" class="nav-tab nav-tab-active" onclick="showTab(event, 'dashboard')"><?php esc_html_e( 'Dashboard', 'bisn' ); ?></a>
+            <a href="#waitlist" class="nav-tab" onclick="showTab(event, 'waitlist')"><?php esc_html_e( 'Waitlist', 'bisn' ); ?></a>
+        </h2>
+        
+        <!-- Tab Content -->
+        <div id="dashboard" class="tab-content">
+            <h2><?php esc_html_e( 'Dashboard', 'bisn' ); ?></h2>
             <?php
-            $waitlist_table->display();
+                // Add relevant data and statistics here
+                echo '<p>' . esc_html__( 'Average Wait Time: 3 days', 'bisn' ) . '</p>';
+                echo '<p>' . esc_html__( 'Total Waitlist Sign-ups: 25', 'bisn' ) . '</p>';
             ?>
-        </form>
+        </div>
+        
+        <div id="waitlist" class="tab-content" style="display:none;">
+            <h2><?php esc_html_e( 'Waitlist', 'bisn' ); ?></h2>
+            <?php
+                // Display the waitlist table
+                $waitlist_table = new BISN_Waitlist_Table();
+                $waitlist_table->prepare_items();
+            ?>
+            <form method="post">
+                <?php $waitlist_table->display(); ?>
+            </form>
+        </div>
     </div>
+
+    <!-- JavaScript for Tab Switching -->
+    <script type="text/javascript">
+        function showTab(event, tabId) {
+            event.preventDefault();
+            
+            // Hide all tab content
+            var tabContent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            
+            // Remove active class from all tabs
+            var tabs = document.getElementsByClassName("nav-tab");
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("nav-tab-active");
+            }
+            
+            // Show the clicked tab content and mark it as active
+            document.getElementById(tabId).style.display = "block";
+            event.currentTarget.classList.add("nav-tab-active");
+        }
+
+        // Display the default tab (Dashboard) on load
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("dashboard").style.display = "block";
+        });
+    </script>
     <?php
 }
 
