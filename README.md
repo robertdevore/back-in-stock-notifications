@@ -1,2 +1,2 @@
-# back-in-stock-notifications
-Back in Stock Notifications for WooCommerce® - FREE FOR THE PEOPLE
+# Back In Stock Notifications for WooCommerce®
+Automatically notify customers when their favorite products are restocked, and track what products are most in demand.
