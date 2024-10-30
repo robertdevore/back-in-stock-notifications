@@ -211,12 +211,42 @@ function bisn_add_admin_menu() {
 add_action( 'admin_menu', 'bisn_add_admin_menu' );
 
 /**
- * Render the admin waitlist page with tab navigation.
+ * Render the admin waitlist page with tab navigation, statistics, and styling.
  * 
  * @since  1.0.0
  * @return void
  */
 function bisn_waitlist_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'bisn_waitlist';
+
+    // Query top 10 most wanted products based on customer count
+    $most_wanted_products = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $table_name 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+
+    // Query top 10 most overdue products based on days since sign-up
+    $most_overdue_products = $wpdb->get_results(
+        "SELECT product_id, MIN(DATEDIFF(NOW(), date_added)) AS days_waiting 
+         FROM $table_name 
+         GROUP BY product_id 
+         ORDER BY days_waiting DESC 
+         LIMIT 10"
+    );
+
+    // Query top 10 most signed-up products for "Most Signed-up" section
+    $most_signed_up_products = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $table_name 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+
     ?>
     <div class="wrap">
         <h1><?php esc_html_e( 'Back In Stock Notifications', 'bisn' ); ?></h1>
@@ -229,18 +259,115 @@ function bisn_waitlist_page() {
         
         <!-- Tab Content -->
         <div id="dashboard" class="tab-content">
-            <h2><?php esc_html_e( 'Dashboard', 'bisn' ); ?></h2>
-            <?php
-                // Add relevant data and statistics here
-                echo '<p>' . esc_html__( 'Average Wait Time: 3 days', 'bisn' ) . '</p>';
-                echo '<p>' . esc_html__( 'Total Waitlist Sign-ups: 25', 'bisn' ) . '</p>';
-            ?>
+            <!-- Row 1: Notifications and Sign-ups -->
+            <div class="bisn-dashboard-row">
+                <div class="bisn-dashboard-box">
+                    <h3><?php esc_html_e( 'Notifications', 'bisn' ); ?></h3>
+                    <div class="bisn-grid">
+                        <div class="bisn-grid-item">
+                            <span class="bisn-stat-number">120</span>
+                            <span><?php esc_html_e( 'Sent Last Month', 'bisn' ); ?></span>
+                        </div>
+                        <div class="bisn-grid-item">
+                            <span class="bisn-stat-number">5</span>
+                            <span><?php esc_html_e( 'Sent Today', 'bisn' ); ?></span>
+                        </div>
+                        <div class="bisn-grid-item">
+                            <span class="bisn-stat-number">15</span>
+                            <span><?php esc_html_e( 'Queued', 'bisn' ); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bisn-dashboard-box">
+                    <h3><?php esc_html_e( 'Sign-ups', 'bisn' ); ?></h3>
+                    <div class="bisn-grid">
+                        <div class="bisn-grid-item">
+                            <span class="bisn-stat-number">80</span>
+                            <span><?php esc_html_e( 'Sign-ups Last Month', 'bisn' ); ?></span>
+                        </div>
+                        <div class="bisn-grid-item">
+                            <span class="bisn-stat-number">3</span>
+                            <span><?php esc_html_e( 'Signed up Today', 'bisn' ); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Product Leaderboards in Tables -->
+            <div class="bisn-dashboard-row">
+                <div class="bisn-dashboard-box">
+                    <h3><?php esc_html_e( 'Most Wanted', 'bisn' ); ?></h3>
+                    <table class="bisn-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Product', 'bisn' ); ?></th>
+                                <th><?php esc_html_e( 'Customers', 'bisn' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($most_wanted_products as $product): 
+                                $product_name = get_the_title( $product->product_id );
+                                $edit_link = get_edit_post_link( $product->product_id );
+                                ?>
+                                <tr>
+                                    <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
+                                    <td><?php echo esc_html( $product->customer_count ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="bisn-dashboard-box">
+                    <h3><?php esc_html_e( 'Most Overdue', 'bisn' ); ?></h3>
+                    <table class="bisn-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Product', 'bisn' ); ?></th>
+                                <th><?php esc_html_e( 'Days Waiting', 'bisn' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($most_overdue_products as $product): 
+                                $product_name = get_the_title( $product->product_id );
+                                $edit_link = get_edit_post_link( $product->product_id );
+                                ?>
+                                <tr>
+                                    <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
+                                    <td><?php echo esc_html( $product->days_waiting ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="bisn-dashboard-box">
+                    <h3><?php esc_html_e( 'Most Signed-up', 'bisn' ); ?></h3>
+                    <table class="bisn-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Product', 'bisn' ); ?></th>
+                                <th><?php esc_html_e( 'Customers', 'bisn' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($most_signed_up_products as $product): 
+                                $product_name = get_the_title( $product->product_id );
+                                $edit_link = get_edit_post_link( $product->product_id );
+                                ?>
+                                <tr>
+                                    <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
+                                    <td><?php echo esc_html( $product->customer_count ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         
         <div id="waitlist" class="tab-content" style="display:none;">
-            <h2><?php esc_html_e( 'Waitlist', 'bisn' ); ?></h2>
             <?php
-                // Display the waitlist table
                 $waitlist_table = new BISN_Waitlist_Table();
                 $waitlist_table->prepare_items();
             ?>
@@ -255,28 +382,81 @@ function bisn_waitlist_page() {
         function showTab(event, tabId) {
             event.preventDefault();
             
-            // Hide all tab content
             var tabContent = document.getElementsByClassName("tab-content");
             for (var i = 0; i < tabContent.length; i++) {
                 tabContent[i].style.display = "none";
             }
             
-            // Remove active class from all tabs
             var tabs = document.getElementsByClassName("nav-tab");
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove("nav-tab-active");
             }
             
-            // Show the clicked tab content and mark it as active
             document.getElementById(tabId).style.display = "block";
             event.currentTarget.classList.add("nav-tab-active");
         }
 
-        // Display the default tab (Dashboard) on load
+        // Default display the Dashboard tab
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("dashboard").style.display = "block";
         });
     </script>
+
+    <!-- CSS for Dashboard Styling -->
+    <style>
+        .bisn-dashboard-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .bisn-dashboard-box {
+            flex: 1;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .bisn-dashboard-box h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .bisn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .bisn-grid-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .bisn-stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0073aa;
+        }
+        .bisn-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .bisn-table th, .bisn-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .bisn-table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+    </style>
     <?php
 }
 
