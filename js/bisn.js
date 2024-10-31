@@ -35,8 +35,10 @@ jQuery(document).ready(function($) {
             security: bisnAjax.nonce
         }, function(response) {
             if (response.success) {
-                alert(response.data.message);
-                $('#waitlist-form').remove(); // Remove form after successful submission
+                // Remove the form after successful submission
+                $('#waitlist-form').replaceWith(
+                    `<p class="bisn-success-message" style="color: green;">${response.data.message}</p>`
+                );
             } else {
                 alert(response.data.message);
             }

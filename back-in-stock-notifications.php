@@ -278,16 +278,10 @@ function bisn_notify_waitlist_on_restock( $product ) {
         if ( $emails ) {
             foreach ( $emails as $row ) {
                 $email = sanitize_email( $row->email );
-                
-                // Send notification email.
-                wp_mail(
-                    $email,
-                    esc_html__( 'Product Back in Stock', 'bisn' ),
-                    sprintf(
-                        esc_html__( 'Your requested product is back in stock. Click here to purchase: %s', 'bisn' ),
-                        esc_url( get_permalink( $product_id ) )
-                    )
-                );
+
+                // Send 'Back in Stock' notification email.
+                $email_instance = WC()->mailer()->emails['BISN_Back_In_Stock_Email'];
+                $email_instance->trigger( $email, $product );                
 
                 // Log the sent notification.
                 $wpdb->insert( $notifications_table, [
@@ -299,7 +293,7 @@ function bisn_notify_waitlist_on_restock( $product ) {
             }
 
             // Remove users from the waitlist after notification.
-            $wpdb->delete( $table_name, array( 'product_id' => $product_id ), array( '%d' ) );
+            $wpdb->delete( $table_name, [ 'product_id' => $product_id ], [ '%d' ] );
         }
     }
 }
@@ -678,6 +672,10 @@ function bisn_waitlist_page() {
             background-color: #f1f1f1;
             font-weight: bold;
         }
+        .bisn-table th:nth-of-type(2),
+        .bisn-table td:nth-of-type(2) {
+            text-align: right;
+        }
     </style>
     <?php
 }
@@ -802,3 +800,10 @@ function bisn_export_dashboard_csv() {
     exit;
 }
 add_action( 'wp_ajax_bisn_export_dashboard_csv', 'bisn_export_dashboard_csv' );
+
+function bisn_register_back_in_stock_email( $email_classes ) {
+    require_once plugin_dir_path( __FILE__ ) . 'class-bisn-back-in-stock-email.php';
+    $email_classes['BISN_Back_In_Stock_Email'] = new BISN_Back_In_Stock_Email();
+    return $email_classes;
+}
+add_filter( 'woocommerce_email_classes', 'bisn_register_back_in_stock_email' );
