@@ -26,8 +26,11 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-// Include the custom waitlist table class
+// Include the custom waitlist table class.
 require_once plugin_dir_path( __FILE__ ) . 'class-bisn-waitlist-table.php';
+
+// Include the custom waitlist table class.
+require_once plugin_dir_path( __FILE__ ) . 'bisn-woocommerce-my-account.php';
 
 require 'plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
@@ -441,6 +444,7 @@ function bisn_waitlist_page() {
             font-size: 32px;
             font-weight: bold;
             color: #0073aa;
+            margin: 12px 0;
         }
         .bisn-table {
             width: 100%;
