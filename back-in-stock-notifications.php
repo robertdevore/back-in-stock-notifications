@@ -29,6 +29,9 @@ if ( ! defined( 'WPINC' ) ) {
 // Include the custom waitlist table class.
 require_once plugin_dir_path( __FILE__ ) . 'class-bisn-waitlist-table.php';
 
+// Include the data helper class.
+require_once plugin_dir_path( __FILE__ ) . 'class-bisn-data-helper.php';
+
 // Include the custom waitlist table class.
 require_once plugin_dir_path( __FILE__ ) . 'bisn-woocommerce-my-account.php';
 
@@ -203,12 +206,12 @@ register_activation_hook( __FILE__, 'bisn_create_notifications_table' );
  * @return void
  */
 function bisn_enqueue_scripts() {
-    // Check if we're on a single product page
+    // Check if we're on a single product page.
     if ( is_product() ) {
-        // Get the global product object or retrieve it explicitly
+        // Get the global product object.
         $product = wc_get_product( get_the_ID() );
 
-        // Ensure the product exists and is out of stock
+        // Make sure the product exists and is also out of stock.
         if ( $product && ! $product->is_in_stock() ) {
             wp_enqueue_script( 'bisn-js', plugin_dir_url( __FILE__ ) . 'js/bisn.js', [ 'jquery' ], null, true );
 
@@ -345,116 +348,20 @@ add_action( 'admin_menu', 'bisn_add_admin_menu' );
 /**
  * Render the admin waitlist page with tab navigation, statistics, and styling.
  * 
- * @TODO create helper function to output all of this table data anywhere/everywhere. ex: bisn_waitlist_table()->most_wanted_products()
  * @since  1.0.0
  * @return void
  */
 function bisn_waitlist_page() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'bisn_waitlist';
-
-    // Query top 10 most wanted products based on customer count
-    $most_wanted_products = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $table_name 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-
-    // Query top 10 most overdue products based on days since sign-up
-    $most_overdue_products = $wpdb->get_results(
-        "SELECT product_id, MIN(DATEDIFF(NOW(), date_added)) AS days_waiting 
-         FROM $table_name 
-         GROUP BY product_id 
-         ORDER BY days_waiting DESC 
-         LIMIT 10"
-    );
-
-    // Query top 10 most signed-up products for "Most Signed-up" section
-    $most_signed_up_products = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $table_name 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-
-    global $wpdb;
-    $history_table_name = $wpdb->prefix . 'bisn_waitlist_history';
-    
-    // Most signed-up products all-time
-    $most_signed_up_all_time = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $history_table_name 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-    
-    // Most signed-up products last week
-    $most_signed_up_last_week = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $history_table_name 
-         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 WEEK) 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-    
-    // Most signed-up products last month
-    $most_signed_up_last_month = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $history_table_name 
-         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-    
-    // Most signed-up products last year
-    $most_signed_up_last_year = $wpdb->get_results(
-        "SELECT product_id, COUNT(*) AS customer_count 
-         FROM $history_table_name 
-         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) 
-         GROUP BY product_id 
-         ORDER BY customer_count DESC 
-         LIMIT 10"
-    );
-
-    $signups_last_month   = 0;
-    $signups_today        = 0;
-    $sent_last_month      = 0;
-    $sent_today           = 0;
-    $queued_notifications = 0;
-
-    // Sign-ups last month
-    $signups_last_month = $wpdb->get_var(
-        "SELECT COUNT(*) FROM $history_table_name WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)"
-    );
-
-    // Sign-ups today
-    $signups_today = $wpdb->get_var(
-        "SELECT COUNT(*) FROM $history_table_name WHERE signup_date >= DATE(NOW())"
-    );
-
-    // Get the notifications table name.
-    $notifications_table = $wpdb->prefix . 'bisn_notifications';
-
-    // Query notifications sent last month.
-    $sent_last_month = $wpdb->get_var(
-        "SELECT COUNT(*) FROM $notifications_table WHERE status = 'sent' AND send_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)"
-    );
-
-    // Query notifications sent today.
-    $sent_today = $wpdb->get_var(
-        "SELECT COUNT(*) FROM $notifications_table WHERE status = 'sent' AND send_date >= DATE(NOW())"
-    );
-
-    // Query queued notifications by counting entries in the waitlist table.
-    $queued_notifications = $wpdb->get_var(
-        "SELECT COUNT(*) FROM $table_name"
-    );
+    $bisn_data = BISN_Data_Helper::get_instance();
+    // Variables for each data retrieval function.
+    $most_wanted_products    = $bisn_data->get_most_wanted_products();
+    $most_overdue_products   = $bisn_data->get_most_overdue_products();
+    $most_signed_up_all_time = $bisn_data->get_most_signed_up_all_time();
+    $signups_last_month      = $bisn_data->get_signups_last_month();
+    $signups_today           = $bisn_data->get_signups_today();
+    $sent_last_month         = $bisn_data->get_sent_last_month();
+    $sent_today              = $bisn_data->get_sent_today();
+    $queued_notifications    = $bisn_data->get_queued_notifications();
     ?>
     <div class="wrap">
         <h1>
