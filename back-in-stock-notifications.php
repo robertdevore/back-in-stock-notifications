@@ -27,15 +27,15 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Include the custom waitlist table class.
-require_once plugin_dir_path( __FILE__ ) . 'class-bisn-waitlist-table.php';
+require_once plugin_dir_path( __FILE__ ) . 'classes/class-bisn-waitlist-table.php';
 
 // Include the data helper class.
-require_once plugin_dir_path( __FILE__ ) . 'class-bisn-data-helper.php';
+require_once plugin_dir_path( __FILE__ ) . 'classes/class-bisn-data-helper.php';
 
 // Include the custom waitlist table class.
 require_once plugin_dir_path( __FILE__ ) . 'bisn-woocommerce-my-account.php';
 
-require 'plugin-update-checker/plugin-update-checker.php';
+require 'vendor/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $myUpdateChecker = PucFactory::buildUpdateChecker(
@@ -213,7 +213,7 @@ function bisn_enqueue_scripts() {
 
         // Make sure the product exists and is also out of stock.
         if ( $product && ! $product->is_in_stock() ) {
-            wp_enqueue_script( 'bisn-js', plugin_dir_url( __FILE__ ) . 'js/bisn.js', [ 'jquery' ], null, true );
+            wp_enqueue_script( 'bisn-js', plugin_dir_url( __FILE__ ) . 'assets/js/bisn.js', [ 'jquery' ], null, true );
 
             wp_localize_script( 'bisn-js', 'bisnAjax', [
                 'ajaxurl' => admin_url( 'admin-ajax.php' ),
@@ -234,8 +234,8 @@ function bisn_enqueue_admin_assets() {
     // Only load these assets on the Back In Stock admin page.
     $screen = get_current_screen();
     if ( isset( $screen->id ) && $screen->id === 'woocommerce_page_bisn_waitlist' ) {
-        wp_enqueue_script( 'bisn-admin-js', plugin_dir_url( __FILE__ ) . 'js/bisn-admin.js', [ 'jquery' ], null, true );
-        wp_enqueue_style( 'bisn-admin-css', plugin_dir_url( __FILE__ ) . 'css/bisn-admin.css', [], null );
+        wp_enqueue_script( 'bisn-admin-js', plugin_dir_url( __FILE__ ) . 'assets/js/bisn-admin.js', [ 'jquery' ], null, true );
+        wp_enqueue_style( 'bisn-admin-css', plugin_dir_url( __FILE__ ) . 'assets/css/bisn-admin.css', [], null );
     }
 }
 add_action( 'admin_enqueue_scripts', 'bisn_enqueue_admin_assets' );
@@ -739,7 +739,7 @@ function bisn_export_dashboard_csv() {
 add_action( 'wp_ajax_bisn_export_dashboard_csv', 'bisn_export_dashboard_csv' );
 
 function bisn_register_back_in_stock_email( $email_classes ) {
-    require_once plugin_dir_path( __FILE__ ) . 'class-bisn-back-in-stock-email.php';
+    require_once plugin_dir_path( __FILE__ ) . 'classes/class-bisn-back-in-stock-email.php';
     $email_classes['BISN_Back_In_Stock_Email'] = new BISN_Back_In_Stock_Email();
     return $email_classes;
 }

@@ -11,11 +11,11 @@ $product_url   = get_permalink( $product->get_id() );
 
 echo sprintf( __( 'Great news! "%s" is now back in stock and available for purchase.', 'bisn' ), $product_name ) . "\n\n";
 
-echo "Product: " . $product_name . "\n";
-echo "Price: $" . $product_price . "\n";
-echo "Link: " . $product_url . "\n\n";
+echo "Product: {$product_name}\n";
+echo "Price: \${$product_price}\n";
+echo "Link: {$product_url}\n\n";
 
-echo "Shop Now: " . $product_url . "\n";
+echo "Shop Now: {$product_url}\n";
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 

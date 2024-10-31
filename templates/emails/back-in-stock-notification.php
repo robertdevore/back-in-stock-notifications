@@ -14,12 +14,12 @@ if ( $product ) {
     $product_price     = $product->get_price_html();
     $product_url       = get_permalink( $product->get_id() );
 } else {
-    echo '<p>' . __( 'We are sorry, but we could not retrieve the product details.', 'bisn' ) . '</p>';
+    echo '<p>' . esc_html__( 'We are sorry, but we could not retrieve the product details.', 'bisn' ) . '</p>';
     return;
 }
 ?>
 
-    <p style="text-align:center; margin: 0 auto;"><?php printf( __( 'Great news! "%s" is now back in stock and available for purchase.', 'bisn' ), esc_html( $product_name ) ); ?></p>
+    <p style="text-align:center; margin: 0 auto;"><?php printf( esc_html__( 'Great news! "%s" is now back in stock and available for purchase.', 'bisn' ), esc_html( $product_name ) ); ?></p>
 
     <?php if ( $product_image_url ) : ?>
         <img src="<?php echo esc_url( $product_image_url ); ?>" alt="<?php echo esc_attr( $product_name ); ?>" style="max-width: 100%; margin: 15px auto !important;display: block !important;position:relative;" />

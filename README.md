@@ -1,17 +1,17 @@
 # Back In Stock Notifications for WooCommerce®
 
-Automatically notify customers when products they're interested in are back in stock, and track demand for your most popular items.
+Automatically notify customers when products they're interested in are back in stock, and track demand for your most popular items. The plugin integrates seamlessly with WooCommerce® to capture customer interest and manage notifications efficiently.
 
 * * *
 
 ## Features
 
-- **Automated Notifications**: Sends emails to customers when a product they signed up for is back in stock.
-- **Demand Tracking**: Track and display demand trends for your products through waitlist statistics.
-- **WooCommerce® Integration**: Seamlessly integrates with WooCommerce® to manage back-in-stock notifications.
-- **Customizable Emails**: Personalized email templates for notifying customers.
-- **Dashboard Insights**: Get insights into product demand and customer interest within your WooCommerce® admin.
-- **Automatic Updates**: Receive updates through the WordPress® dashboard via [PluginUpdateChecker](https://github.com/YahnisElsts/plugin-update-checker).
+- **Automated Notifications**: Sends customizable emails to customers when a product they signed up for is back in stock.
+- **Demand Tracking**: Track and display demand trends through waitlist statistics and analytics.
+- **WooCommerce® Integration**: Built for WooCommerce® to manage back-in-stock notifications.
+- **Customizable Emails**: Email templates for customer notifications can be customized to match your brand.
+- **Dashboard Insights**: Gain insights into product demand, customer interest, and track notification history within your WooCommerce® admin.
+- **Automatic Updates**: Receive updates through the WordPress® dashboard using [PluginUpdateChecker](https://github.com/YahnisElsts/plugin-update-checker).
 * * *
 
 ## Installation
@@ -74,6 +74,7 @@ You can further customize these templates by copying them to your theme folder u
 
 - Customers can join a waitlist on a product's single page.
 - The waitlist form captures the customer's email, saving it to the waitlist database table.
+- The plugin enqueues JavaScript only on out-of-stock single product pages, optimizing performance.
 
 ### 2. Notifying Customers
 
@@ -89,10 +90,25 @@ Admins can access the **Back In Stock** submenu under **WooCommerce®**. The das
 - **Most Wanted Products**: Products with the highest waitlist counts.
 - **Most Overdue Products**: Products that have been out of stock the longest.
 - **Most Signed-Up Products**: Top products based on waitlist sign-ups over time.
+- **Sign-Ups and Notifications**: Daily and monthly sign-up and notification statistics are tracked, with values stored for easy access via a helper class.
 
 ### 4. CSV Exporting
 
 Two CSV export options are available on the **Back In Stock** dashboard:
-- **Export Emails**: Exports all unique emails from the waitlist.
-- **Export Data**: Exports demand insights such as the most wanted and most overdue products.
-* * *
+- **Export Emails**: Exports all unique emails from the waitlist history table.
+- **Export Data**: Exports demand insights such as the most wanted, most overdue, and most signed-up products.
+
+### Helper Functionality
+
+The plugin introduces a `BISN_Data_Helper` class to simplify database queries for various waitlist and notification statistics, such as:
+
+- `get_most_wanted_products()`: Retrieves the top 10 most wanted products based on waitlist count.
+- `get_most_overdue_products()`: Retrieves the top 10 products out of stock the longest.
+- `get_signups_today()`: Counts the sign-ups from today.
+- `get_sent_today()`: Counts notifications sent today.
+
+The helper class enables efficient data retrieval for a streamlined and modular plugin structure.
+
+### Customizable Back In Stock Email
+
+The **BISN_Back_In_Stock_Email** class controls the back-in-stock email notifications, which are sent when products are restocked. Emails are triggered by the `bisn_send_back_in_stock_email` action, providing seamless integration into WooCommerce's email management system.

@@ -1,0 +1,241 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Back In Stock Notifications for WooCommerce®\n"
+"POT-Creation-Date: 2024-10-31 12:56-0400\n"
+"PO-Revision-Date: 2024-10-31 12:56-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.2.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: back-in-stock-notifications.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+"X-Poedit-SearchPathExcluded-1: vendor\n"
+
+#: back-in-stock-notifications.php:68
+msgid ""
+"Back In Stock Notifications requires WooCommerce to be installed and active. "
+"Please activate WooCommerce and try again."
+msgstr ""
+
+#: back-in-stock-notifications.php:69
+msgid "Plugin Activation Error"
+msgstr ""
+
+#: back-in-stock-notifications.php:84
+msgid ""
+"Back In Stock Notifications requires WooCommerce to be active. Please "
+"activate WooCommerce to use this plugin."
+msgstr ""
+
+#: back-in-stock-notifications.php:258
+msgid "Invalid email address."
+msgstr ""
+
+#: back-in-stock-notifications.php:284
+msgid "You have been added to the waitlist."
+msgstr ""
+
+#: back-in-stock-notifications.php:339
+msgid "Back In Stock Waitlist"
+msgstr ""
+
+#: back-in-stock-notifications.php:340
+msgid "Back In Stock"
+msgstr ""
+
+#: back-in-stock-notifications.php:368
+msgid "Back In Stock Notifications"
+msgstr ""
+
+#: back-in-stock-notifications.php:374
+msgid "Export Emails"
+msgstr ""
+
+#: back-in-stock-notifications.php:378
+msgid "Export Data"
+msgstr ""
+
+#: back-in-stock-notifications.php:384
+msgid "Dashboard"
+msgstr ""
+
+#: back-in-stock-notifications.php:385 bisn-woocommerce-my-account.php:127
+msgid "Waitlist"
+msgstr ""
+
+#: back-in-stock-notifications.php:393
+msgid "Notifications"
+msgstr ""
+
+#: back-in-stock-notifications.php:397
+msgid "Sent Last Month"
+msgstr ""
+
+#: back-in-stock-notifications.php:401
+msgid "Sent Today"
+msgstr ""
+
+#: back-in-stock-notifications.php:405
+msgid "Queued"
+msgstr ""
+
+#: back-in-stock-notifications.php:410
+msgid "Sign-ups"
+msgstr ""
+
+#: back-in-stock-notifications.php:414
+msgid "Sign-ups Last Month"
+msgstr ""
+
+#: back-in-stock-notifications.php:418
+msgid "Signed up Today"
+msgstr ""
+
+#: back-in-stock-notifications.php:426
+msgid "Most Wanted"
+msgstr ""
+
+#: back-in-stock-notifications.php:430 back-in-stock-notifications.php:452
+#: back-in-stock-notifications.php:474 bisn-woocommerce-my-account.php:52
+#: classes/class-bisn-waitlist-table.php:69
+msgid "Product"
+msgstr ""
+
+#: back-in-stock-notifications.php:431 back-in-stock-notifications.php:475
+msgid "Customers"
+msgstr ""
+
+#: back-in-stock-notifications.php:448
+msgid "Most Overdue"
+msgstr ""
+
+#: back-in-stock-notifications.php:453
+msgid "Days Waiting"
+msgstr ""
+
+#: back-in-stock-notifications.php:470
+msgid "Most Signed-up"
+msgstr ""
+
+#: back-in-stock-notifications.php:643
+msgid "Unauthorized request."
+msgstr ""
+
+#: back-in-stock-notifications.php:683
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:49
+msgid "Your Waitlisted Products"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:53
+msgid "Signup Date"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:54
+msgid "Waiting Time"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:55
+msgid "Action"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:75
+msgid "ago"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:79
+msgid "Remove"
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:87
+msgid "You are not currently waitlisted for any products."
+msgstr ""
+
+#: bisn-woocommerce-my-account.php:165
+msgid "You have been removed from the waitlist for this product."
+msgstr ""
+
+#: classes/class-bisn-back-in-stock-email.php:22
+msgid "Back in Stock Notification"
+msgstr ""
+
+#: classes/class-bisn-back-in-stock-email.php:23
+msgid "Notification email sent to customers when a product is back in stock."
+msgstr ""
+
+#: classes/class-bisn-back-in-stock-email.php:25
+msgid "Your Product is Back in Stock!"
+msgstr ""
+
+#: classes/class-bisn-back-in-stock-email.php:26
+msgid "[{site_title}] Product Back in Stock: {product_name}"
+msgstr ""
+
+#: classes/class-bisn-waitlist-table.php:29
+msgid "Waitlist Entry"
+msgstr ""
+
+#: classes/class-bisn-waitlist-table.php:30
+msgid "Waitlist Entries"
+msgstr ""
+
+#: classes/class-bisn-waitlist-table.php:70
+msgid "Email"
+msgstr ""
+
+#: classes/class-bisn-waitlist-table.php:71
+msgid "Signed Up"
+msgstr ""
+
+#: classes/class-bisn-waitlist-table.php:72
+msgid "Waiting"
+msgstr ""
+
+#: templates/emails/back-in-stock-notification.php:17
+msgid "We are sorry, but we could not retrieve the product details."
+msgstr ""
+
+#: templates/emails/back-in-stock-notification.php:22
+#: templates/emails/plain/back-in-stock-notification.php:12
+#, php-format
+msgid "Great news! \"%s\" is now back in stock and available for purchase."
+msgstr ""
+
+#: templates/emails/back-in-stock-notification.php:36
+msgid "Shop Now"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Back In Stock Notifications for WooCommerce®"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/robertdevore/back-in-stock-notifications/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Automatically notify customers when their favorite products are restocked, "
+"and track what products are most in demand."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Robert DeVore"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://robertdevore.com/"
+msgstr ""

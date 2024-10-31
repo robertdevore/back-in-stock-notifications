@@ -162,7 +162,7 @@ function bisn_handle_waitlist_removal() {
             'product_id' => $product_id,
         ], [ '%d', '%d' ] );
 
-        wc_add_notice( __( 'You have been removed from the waitlist for this product.', 'bisn' ), 'success' );
+        wc_add_notice( esc_html__( 'You have been removed from the waitlist for this product.', 'bisn' ), 'success' );
 
         // Redirect to avoid form resubmission on page refresh.
         wp_safe_redirect( wc_get_account_endpoint_url( 'waitlist' ) );
