@@ -676,6 +676,11 @@ function bisn_waitlist_page() {
         .bisn-table td:nth-of-type(2) {
             text-align: right;
         }
+        @media (max-width:768px) {
+            .bisn-dashboard-row {
+                flex-direction: column;
+            }
+        }
     </style>
     <?php
 }

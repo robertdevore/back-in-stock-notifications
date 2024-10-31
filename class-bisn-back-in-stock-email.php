@@ -19,11 +19,11 @@ class BISN_Back_In_Stock_Email extends WC_Email {
 
     public function __construct() {
         $this->id          = 'bisn_back_in_stock';
-        $this->title       = __( 'Back in Stock Notification', 'bisn' );
-        $this->description = __( 'Notification email sent to customers when a product is back in stock.', 'bisn' );
+        $this->title       = esc_html__( 'Back in Stock Notification', 'bisn' );
+        $this->description = esc_html__( 'Notification email sent to customers when a product is back in stock.', 'bisn' );
         
-        $this->heading = __( 'Your Product is Back in Stock!', 'bisn' );
-        $this->subject = __( '[{site_title}] Product Back in Stock: {product_name}', 'bisn' );
+        $this->heading = esc_html__( 'Your Product is Back in Stock!', 'bisn' );
+        $this->subject = esc_html__( '[{site_title}] Product Back in Stock: {product_name}', 'bisn' );
 
         $this->template_html  = 'emails/back-in-stock-notification.php';
         $this->template_plain = 'emails/plain/back-in-stock-notification.php';
@@ -54,21 +54,21 @@ class BISN_Back_In_Stock_Email extends WC_Email {
     
         $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
     }
-    
+
     public function get_content_html() {
         return wc_get_template_html( $this->template_html, [
             'email_heading' => $this->get_heading(),
-            'product_id'    => $this->product_id, // Pass product_id here
+            'product_id'    => $this->product_id,
             'sent_to_admin' => false,
             'plain_text'    => false,
             'email'         => $this,
         ], '', $this->template_base );
     }
-    
+
     public function get_content_plain() {
         return wc_get_template_html( $this->template_plain, [
             'email_heading' => $this->get_heading(),
-            'product_id'    => $this->product_id, // Pass product_id here
+            'product_id'    => $this->product_id,
             'sent_to_admin' => false,
             'plain_text'    => true,
             'email'         => $this,
