@@ -415,14 +415,23 @@ function bisn_waitlist_page() {
     );
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e( 'Back In Stock Notifications', 'bisn' ); ?></h1>
-        
+        <h1>
+            <?php esc_html_e( 'Back In Stock Notifications', 'bisn' ); ?>
+            <span style="vertical-align: middle; margin-right: 5px; font-size:12px;">
+                v<?php esc_html_e( BACK_IN_STOCK_NOTIFICATIONS_VERSION ); ?>
+            </span>
+            <a style="float:right;" href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=bisn_export_csv' ) ); ?>" class="button">
+                <span class="dashicons dashicons-download" style="vertical-align: middle; margin-right: 5px;"></span>
+                <?php esc_html_e( 'Export Emails', 'bisn' ); ?>
+            </a>
+        </h1>
+
         <!-- Tabs Navigation -->
         <h2 class="nav-tab-wrapper">
             <a href="#dashboard" class="nav-tab nav-tab-active" onclick="showTab(event, 'dashboard')"><?php esc_html_e( 'Dashboard', 'bisn' ); ?></a>
             <a href="#waitlist" class="nav-tab" onclick="showTab(event, 'waitlist')"><?php esc_html_e( 'Waitlist', 'bisn' ); ?></a>
         </h2>
-        
+
         <!-- Tab Content -->
         <div id="dashboard" class="tab-content">
             <!-- Row 1: Notifications and Sign-ups -->
@@ -458,7 +467,6 @@ function bisn_waitlist_page() {
                     </div>
                 </div>
             </div>
-
             <!-- Row 2: Product Leaderboards in Tables -->
             <div class="bisn-dashboard-row">
                 <div class="bisn-dashboard-box">
@@ -471,19 +479,18 @@ function bisn_waitlist_page() {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($most_wanted_products as $product): 
+                            <?php foreach ( $most_wanted_products as $product ): 
                                 $product_name = get_the_title( $product->product_id );
                                 $edit_link = get_edit_post_link( $product->product_id );
                                 ?>
                                 <tr>
-                                    <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
+                                    <td><a href="<?php echo esc_url( $edit_link ); ?>"><?php echo esc_html( $product_name ); ?></a></td>
                                     <td><?php echo esc_html( $product->customer_count ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                </div>
-                
+                </div> 
                 <div class="bisn-dashboard-box">
                     <h3><?php esc_html_e( 'Most Overdue', 'bisn' ); ?></h3>
                     <table class="bisn-table">
@@ -494,19 +501,18 @@ function bisn_waitlist_page() {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($most_overdue_products as $product): 
+                            <?php foreach ( $most_overdue_products as $product ): 
                                 $product_name = get_the_title( $product->product_id );
-                                $edit_link = get_edit_post_link( $product->product_id );
+                                $edit_link    = get_edit_post_link( $product->product_id );
                                 ?>
                                 <tr>
-                                    <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
+                                    <td><a href="<?php echo esc_url( $edit_link ); ?>"><?php echo esc_html( $product_name ); ?></a></td>
                                     <td><?php echo esc_html( $product->days_waiting ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
-
                 <div class="bisn-dashboard-box">
                     <h3><?php esc_html_e( 'Most Signed-up', 'bisn' ); ?></h3>
                     <table id="most-signedup-table" class="bisn-table">
@@ -531,7 +537,7 @@ function bisn_waitlist_page() {
                 </div>
             </div>
         </div>
-        
+
         <div id="waitlist" class="tab-content" style="display:none;">
             <?php
                 $waitlist_table = new BISN_Waitlist_Table();
@@ -547,20 +553,20 @@ function bisn_waitlist_page() {
     <script type="text/javascript">
         function showTab(event, tabId) {
             event.preventDefault();
-            
+
             // Hide all tab contents
             var tabContent = document.getElementsByClassName("tab-content");
             for (var i = 0; i < tabContent.length; i++) {
                 tabContent[i].style.display = "none";
                 tabContent[i].style.opacity = "0";
             }
-            
+
             // Remove active class from all tabs
             var tabs = document.getElementsByClassName("nav-tab");
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove("nav-tab-active");
             }
-            
+
             // Show the selected tab and add active class
             var activeTab = document.getElementById(tabId);
             activeTab.style.display = "block";
@@ -572,15 +578,15 @@ function bisn_waitlist_page() {
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Get the last active tab from localStorage, default to 'dashboard' if not set
+            // Get the last active tab from localStorage, default to 'dashboard' if not set.
             var activeTab = localStorage.getItem("activeTab") || "dashboard";
-            
-            // Show only the active tab without delay
+
+            // Show only the active tab without delay.
             var tabContent = document.getElementById(activeTab);
             tabContent.style.display = "block";
             tabContent.style.opacity = "1";
 
-            // Trigger click on the saved active tab to open it and apply active class
+            // Trigger click on the saved active tab to open it and apply active class.
             document.querySelector(`a[href="#${activeTab}"]`).click();
         });
     </script>
@@ -657,8 +663,49 @@ function bisn_waitlist_page() {
  */
 function bisn_add_product_id_field() {
     if ( ! is_product() ) return;
-    
+
     global $product;
     echo '<input type="hidden" name="product_id" value="' . esc_attr( $product->get_id() ) . '">';
 }
 add_action( 'woocommerce_single_product_summary', 'bisn_add_product_id_field', 5 );
+
+/**
+ * Export all email addresses from bisn_waitlist_history table as CSV.
+ *
+ * @since  1.0.0
+ * @return never
+ */
+function bisn_export_csv() {
+    // Check for required permission and nonce if needed.
+    if ( ! current_user_can( 'manage_woocommerce' ) ) {
+        wp_die( esc_html__( 'Unauthorized request.', 'bisn' ) );
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'bisn_waitlist_history';
+
+    // Get all unique email addresses from the table.
+    $emails = $wpdb->get_col( "SELECT DISTINCT email FROM $table_name WHERE email != ''" );
+
+    // Set headers to prompt download with date and time in the filename.
+    header( 'Content-Type: text/csv; charset=utf-8' );
+    header( 'Content-Disposition: attachment; filename=bisn_emails_' . date( 'Y-m-d_H-i-s' ) . '.csv' );
+
+    // Open PHP output stream as file.
+    $output = fopen( 'php://output', 'w' );
+
+    // Add header row if needed.
+    fputcsv( $output, [ 'Email' ] );
+
+    // Output each email as a row.
+    foreach ( $emails as $email ) {
+        fputcsv( $output, [ $email ] );
+    }
+
+    // Close the output stream.
+    fclose( $output );
+
+    // Exit to prevent additional output.
+    exit;
+}
+add_action( 'wp_ajax_bisn_export_csv', 'bisn_export_csv' );
