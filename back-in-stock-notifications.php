@@ -197,20 +197,45 @@ function bisn_create_notifications_table() {
 register_activation_hook( __FILE__, 'bisn_create_notifications_table' );
 
 /**
- * Enqueue front-end JavaScript file.
+ * Enqueue front-end JavaScript file only on out-of-stock single product pages.
  * 
  * @since  1.0.0
  * @return void
  */
 function bisn_enqueue_scripts() {
-    wp_enqueue_script( 'bisn-js', plugin_dir_url( __FILE__ ) . 'js/bisn.js', [ 'jquery' ], null, true );
+    // Check if we're on a single product page
+    if ( is_product() ) {
+        // Get the global product object or retrieve it explicitly
+        $product = wc_get_product( get_the_ID() );
 
-    wp_localize_script( 'bisn-js', 'bisnAjax', [
-        'ajaxurl' => admin_url( 'admin-ajax.php' ),
-        'nonce'   => wp_create_nonce( 'bisn_nonce' ),
-    ] );
+        // Ensure the product exists and is out of stock
+        if ( $product && ! $product->is_in_stock() ) {
+            wp_enqueue_script( 'bisn-js', plugin_dir_url( __FILE__ ) . 'js/bisn.js', [ 'jquery' ], null, true );
+
+            wp_localize_script( 'bisn-js', 'bisnAjax', [
+                'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'nonce'   => wp_create_nonce( 'bisn_nonce' ),
+            ] );
+        }
+    }
 }
 add_action( 'wp_enqueue_scripts', 'bisn_enqueue_scripts' );
+
+/**
+ * Enqueue admin-specific JavaScript and CSS.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function bisn_enqueue_admin_assets() {
+    // Only load these assets on the Back In Stock admin page.
+    $screen = get_current_screen();
+    if ( isset( $screen->id ) && $screen->id === 'woocommerce_page_bisn_waitlist' ) {
+        wp_enqueue_script( 'bisn-admin-js', plugin_dir_url( __FILE__ ) . 'js/bisn-admin.js', [ 'jquery' ], null, true );
+        wp_enqueue_style( 'bisn-admin-css', plugin_dir_url( __FILE__ ) . 'css/bisn-admin.css', [], null );
+    }
+}
+add_action( 'admin_enqueue_scripts', 'bisn_enqueue_admin_assets' );
 
 /**
  * Handle AJAX request to add email to waitlist and log to history.
