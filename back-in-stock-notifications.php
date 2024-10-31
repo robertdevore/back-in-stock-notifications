@@ -90,13 +90,13 @@ add_action( 'admin_notices', 'bisn_check_woocommerce_admin_notice' );
  * @return void
  */
 function bisn_create_waitlist_table() {
-    // Ensure WooCommerce is active before creating the table
+    // Ensure WooCommerce is active before creating the table.
     if ( ! class_exists( 'WooCommerce' ) ) {
         return;
     }
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'bisn_waitlist';
+    $table_name      = $wpdb->prefix . 'bisn_waitlist';
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE $table_name (
@@ -120,8 +120,13 @@ register_activation_hook( __FILE__, 'bisn_create_waitlist_table' );
  * @return void
  */
 function bisn_create_waitlist_history_table() {
+    // Ensure WooCommerce is active before creating the table.
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return;
+    }
+
     global $wpdb;
-    $table_name = $wpdb->prefix . 'bisn_waitlist_history';
+    $table_name      = $wpdb->prefix . 'bisn_waitlist_history';
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -137,6 +142,36 @@ function bisn_create_waitlist_history_table() {
     dbDelta( $sql );
 }
 register_activation_hook( __FILE__, 'bisn_create_waitlist_history_table' );
+
+/**
+ * Create the notifications table on plugin activation.
+ * 
+ * @since  1.0.0
+ * @return void
+ */
+function bisn_create_notifications_table() {
+    // Ensure WooCommerce is active before creating the table.
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return;
+    }
+
+    global $wpdb;
+    $table_name      = $wpdb->prefix . 'bisn_notifications';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        product_id bigint(20) NOT NULL,
+        email varchar(255) NOT NULL,
+        send_date datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        status varchar(20) DEFAULT 'queued' NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+}
+register_activation_hook( __FILE__, 'bisn_create_notifications_table' );
 
 /**
  * Enqueue front-end JavaScript file.
@@ -201,7 +236,7 @@ add_action( 'wp_ajax_nopriv_bisn_add_to_waitlist', 'bisn_add_to_waitlist' );
 add_action( 'wp_ajax_bisn_add_to_waitlist', 'bisn_add_to_waitlist' );
 
 /**
- * Notify waitlist customers when product is restocked.
+ * Notify waitlist customers when product is restocked and log the notification.
  *
  * @param WC_Product $product WooCommerce product object.
  * 
@@ -212,22 +247,35 @@ function bisn_notify_waitlist_on_restock( $product ) {
     global $wpdb;
 
     if ( $product->get_stock_quantity() > 0 ) {
-        $table_name  = $wpdb->prefix . 'bisn_waitlist';
-        $product_id  = $product->get_id();
-        $emails      = $wpdb->get_results( $wpdb->prepare( "SELECT email FROM $table_name WHERE product_id = %d", $product_id ) );
+        $table_name          = $wpdb->prefix . 'bisn_waitlist';
+        $notifications_table = $wpdb->prefix . 'bisn_notifications';
+        $product_id          = $product->get_id();
+        $emails              = $wpdb->get_results( $wpdb->prepare( "SELECT email FROM $table_name WHERE product_id = %d", $product_id ) );
 
         if ( $emails ) {
             foreach ( $emails as $row ) {
+                $email = sanitize_email( $row->email );
+                
+                // Send notification email.
                 wp_mail(
-                    sanitize_email( $row->email ),
+                    $email,
                     esc_html__( 'Product Back in Stock', 'bisn' ),
                     sprintf(
                         esc_html__( 'Your requested product is back in stock. Click here to purchase: %s', 'bisn' ),
                         esc_url( get_permalink( $product_id ) )
                     )
                 );
+
+                // Log the sent notification.
+                $wpdb->insert( $notifications_table, [
+                    'product_id' => $product_id,
+                    'email'      => $email,
+                    'send_date'  => current_time( 'mysql' ),
+                    'status'     => 'sent',
+                ]);
             }
 
+            // Remove users from the waitlist after notification.
             $wpdb->delete( $table_name, array( 'product_id' => $product_id ), array( '%d' ) );
         }
     }
@@ -255,6 +303,7 @@ add_action( 'admin_menu', 'bisn_add_admin_menu' );
 /**
  * Render the admin waitlist page with tab navigation, statistics, and styling.
  * 
+ * @TODO create helper function to output all of this table data anywhere/everywhere. ex: bisn_waitlist_table()->most_wanted_products()
  * @since  1.0.0
  * @return void
  */
@@ -331,8 +380,11 @@ function bisn_waitlist_page() {
          LIMIT 10"
     );
 
-    $signups_last_month = 0;
-    $signups_today      = 0;
+    $signups_last_month   = 0;
+    $signups_today        = 0;
+    $sent_last_month      = 0;
+    $sent_today           = 0;
+    $queued_notifications = 0;
 
     // Sign-ups last month
     $signups_last_month = $wpdb->get_var(
@@ -342,6 +394,24 @@ function bisn_waitlist_page() {
     // Sign-ups today
     $signups_today = $wpdb->get_var(
         "SELECT COUNT(*) FROM $history_table_name WHERE signup_date >= DATE(NOW())"
+    );
+
+    // Get the notifications table name.
+    $notifications_table = $wpdb->prefix . 'bisn_notifications';
+
+    // Query notifications sent last month.
+    $sent_last_month = $wpdb->get_var(
+        "SELECT COUNT(*) FROM $notifications_table WHERE status = 'sent' AND send_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)"
+    );
+
+    // Query notifications sent today.
+    $sent_today = $wpdb->get_var(
+        "SELECT COUNT(*) FROM $notifications_table WHERE status = 'sent' AND send_date >= DATE(NOW())"
+    );
+
+    // Query queued notifications by counting entries in the waitlist table.
+    $queued_notifications = $wpdb->get_var(
+        "SELECT COUNT(*) FROM $table_name"
     );
     ?>
     <div class="wrap">
@@ -361,15 +431,15 @@ function bisn_waitlist_page() {
                     <h3><?php esc_html_e( 'Notifications', 'bisn' ); ?></h3>
                     <div class="bisn-grid">
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number">120</span>
+                            <span class="bisn-stat-number"><?php esc_html_e( $sent_last_month ); ?></span>
                             <span><?php esc_html_e( 'Sent Last Month', 'bisn' ); ?></span>
                         </div>
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number">5</span>
+                            <span class="bisn-stat-number"><?php esc_html_e( $sent_today ); ?></span>
                             <span><?php esc_html_e( 'Sent Today', 'bisn' ); ?></span>
                         </div>
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number">15</span>
+                            <span class="bisn-stat-number"><?php esc_html_e( $queued_notifications ); ?></span>
                             <span><?php esc_html_e( 'Queued', 'bisn' ); ?></span>
                         </div>
                     </div>
@@ -378,7 +448,7 @@ function bisn_waitlist_page() {
                     <h3><?php esc_html_e( 'Sign-ups', 'bisn' ); ?></h3>
                     <div class="bisn-grid">
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number"><?php echo $signups_last_month; ?></span>
+                            <span class="bisn-stat-number"><?php esc_html_e( $signups_last_month ); ?></span>
                             <span><?php esc_html_e( 'Sign-ups Last Month', 'bisn' ); ?></span>
                         </div>
                         <div class="bisn-grid-item">
@@ -517,7 +587,8 @@ function bisn_waitlist_page() {
         .bisn-dashboard-box h3 {
             font-size: 18px;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            margin-top: 0;
         }
         .bisn-grid {
             display: grid;
