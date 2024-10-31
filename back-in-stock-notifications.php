@@ -424,6 +424,10 @@ function bisn_waitlist_page() {
                 <span class="dashicons dashicons-download" style="vertical-align: middle; margin-right: 5px;"></span>
                 <?php esc_html_e( 'Export Emails', 'bisn' ); ?>
             </a>
+            <a style="float:right; margin-right: 10px;" href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=bisn_export_dashboard_csv' ) ); ?>" class="button button-primary">
+                <span class="dashicons dashicons-download" style="vertical-align: middle; margin-right: 5px;"></span>
+                <?php esc_html_e( 'Export Data', 'bisn' ); ?>
+            </a>
         </h1>
 
         <!-- Tabs Navigation -->
@@ -709,3 +713,69 @@ function bisn_export_csv() {
     exit;
 }
 add_action( 'wp_ajax_bisn_export_csv', 'bisn_export_csv' );
+
+/**
+ * Handle exporting dashboard data as CSV with product names.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function bisn_export_dashboard_csv() {
+    if ( ! current_user_can( 'manage_woocommerce' ) ) {
+        wp_die( esc_html__( 'You do not have permission to access this page.', 'bisn' ) );
+    }
+
+    global $wpdb;
+    
+    // Get data for most wanted, most overdue, and most signed-up products
+    $table_name         = $wpdb->prefix . 'bisn_waitlist';
+    $history_table_name = $wpdb->prefix . 'bisn_waitlist_history';
+
+    $most_wanted_products = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count FROM $table_name GROUP BY product_id ORDER BY customer_count DESC LIMIT 10"
+    );
+
+    $most_overdue_products = $wpdb->get_results(
+        "SELECT product_id, MIN(DATEDIFF(NOW(), date_added)) AS days_waiting FROM $table_name GROUP BY product_id ORDER BY days_waiting DESC LIMIT 10"
+    );
+
+    $most_signed_up_all_time = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count FROM $history_table_name GROUP BY product_id ORDER BY customer_count DESC LIMIT 10"
+    );
+
+    // Set up CSV headers
+    header( 'Content-Type: text/csv; charset=utf-8' );
+    header( 'Content-Disposition: attachment; filename=bisn_dashboard_data_' . date( 'Y-m-d_H-i-s' ) . '.csv' );
+
+    $output = fopen( 'php://output', 'w' );
+
+    // Add headers for each section
+    fputcsv( $output, [ 'Most Wanted Products' ] );
+    fputcsv( $output, [ 'Product Name', 'Customer Count' ] );
+    foreach ( $most_wanted_products as $product ) {
+        $product_name = get_the_title( $product->product_id );
+        fputcsv( $output, [ $product_name, $product->customer_count ] );
+    }
+
+    fputcsv( $output, [] ); // Blank line separator
+
+    fputcsv( $output, [ 'Most Overdue Products' ] );
+    fputcsv( $output, [ 'Product Name', 'Days Waiting' ] );
+    foreach ( $most_overdue_products as $product ) {
+        $product_name = get_the_title( $product->product_id );
+        fputcsv( $output, [ $product_name, $product->days_waiting ] );
+    }
+
+    fputcsv( $output, [] ); // Blank line separator
+
+    fputcsv( $output, [ 'Most Signed-up Products All-Time' ] );
+    fputcsv( $output, [ 'Product Name', 'Customer Count' ] );
+    foreach ( $most_signed_up_all_time as $product ) {
+        $product_name = get_the_title( $product->product_id );
+        fputcsv( $output, [ $product_name, $product->customer_count ] );
+    }
+
+    fclose( $output );
+    exit;
+}
+add_action( 'wp_ajax_bisn_export_dashboard_csv', 'bisn_export_dashboard_csv' );
