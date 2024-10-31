@@ -114,6 +114,31 @@ function bisn_create_waitlist_table() {
 register_activation_hook( __FILE__, 'bisn_create_waitlist_table' );
 
 /**
+ * Create the waitlist history table on plugin activation.
+ * 
+ * @since  1.0.0
+ * @return void
+ */
+function bisn_create_waitlist_history_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'bisn_waitlist_history';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        product_id bigint(20) NOT NULL,
+        user_id bigint(20) NULL,
+        email varchar(255) NOT NULL,
+        signup_date datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+}
+register_activation_hook( __FILE__, 'bisn_create_waitlist_history_table' );
+
+/**
  * Enqueue front-end JavaScript file.
  * 
  * @since  1.0.0
@@ -130,7 +155,7 @@ function bisn_enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', 'bisn_enqueue_scripts' );
 
 /**
- * Handle AJAX request to add email to waitlist.
+ * Handle AJAX request to add email to waitlist and log to history.
  * 
  * @since  1.0.0
  * @return void
@@ -147,14 +172,28 @@ function bisn_add_to_waitlist() {
         wp_send_json_error( [ 'message' => esc_html__( 'Invalid email address.', 'bisn' ) ] );
     }
 
-    $table_name = $wpdb->prefix . 'bisn_waitlist';
+    // Get the DB table names.
+    $table_name         = $wpdb->prefix . 'bisn_waitlist';
+    $history_table_name = $wpdb->prefix . 'bisn_waitlist_history';
 
+    // Get the user ID or set it to null.
+    $user_id = get_current_user_id() ?: null;
+
+    // Insert into current waitlist table
     $wpdb->insert( $table_name, [
         'product_id' => $product_id,
         'email'      => $email,
-        'user_id'    => get_current_user_id() ?: null,
+        'user_id'    => $user_id,
         'date_added' => current_time( 'mysql' ),
-    ] );
+    ]);
+
+    // Insert into history table
+    $wpdb->insert( $history_table_name, [
+        'product_id'  => $product_id,
+        'email'       => $email,
+        'user_id'     => $user_id,
+        'signup_date' => current_time( 'mysql' ),
+    ]);
 
     wp_send_json_success( [ 'message' => esc_html__( 'You have been added to the waitlist.', 'bisn' ) ] );
 }
@@ -250,6 +289,60 @@ function bisn_waitlist_page() {
          LIMIT 10"
     );
 
+    global $wpdb;
+    $history_table_name = $wpdb->prefix . 'bisn_waitlist_history';
+    
+    // Most signed-up products all-time
+    $most_signed_up_all_time = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $history_table_name 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+    
+    // Most signed-up products last week
+    $most_signed_up_last_week = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $history_table_name 
+         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 WEEK) 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+    
+    // Most signed-up products last month
+    $most_signed_up_last_month = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $history_table_name 
+         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+    
+    // Most signed-up products last year
+    $most_signed_up_last_year = $wpdb->get_results(
+        "SELECT product_id, COUNT(*) AS customer_count 
+         FROM $history_table_name 
+         WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) 
+         GROUP BY product_id 
+         ORDER BY customer_count DESC 
+         LIMIT 10"
+    );
+
+    $signups_last_month = 0;
+    $signups_today      = 0;
+
+    // Sign-ups last month
+    $signups_last_month = $wpdb->get_var(
+        "SELECT COUNT(*) FROM $history_table_name WHERE signup_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)"
+    );
+
+    // Sign-ups today
+    $signups_today = $wpdb->get_var(
+        "SELECT COUNT(*) FROM $history_table_name WHERE signup_date >= DATE(NOW())"
+    );
     ?>
     <div class="wrap">
         <h1><?php esc_html_e( 'Back In Stock Notifications', 'bisn' ); ?></h1>
@@ -285,11 +378,11 @@ function bisn_waitlist_page() {
                     <h3><?php esc_html_e( 'Sign-ups', 'bisn' ); ?></h3>
                     <div class="bisn-grid">
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number">80</span>
+                            <span class="bisn-stat-number"><?php echo $signups_last_month; ?></span>
                             <span><?php esc_html_e( 'Sign-ups Last Month', 'bisn' ); ?></span>
                         </div>
                         <div class="bisn-grid-item">
-                            <span class="bisn-stat-number">3</span>
+                            <span class="bisn-stat-number"><?php esc_html_e( $signups_today ); ?></span>
                             <span><?php esc_html_e( 'Signed up Today', 'bisn' ); ?></span>
                         </div>
                     </div>
@@ -343,10 +436,10 @@ function bisn_waitlist_page() {
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div class="bisn-dashboard-box">
                     <h3><?php esc_html_e( 'Most Signed-up', 'bisn' ); ?></h3>
-                    <table class="bisn-table">
+                    <table id="most-signedup-table" class="bisn-table">
                         <thead>
                             <tr>
                                 <th><?php esc_html_e( 'Product', 'bisn' ); ?></th>
@@ -354,10 +447,10 @@ function bisn_waitlist_page() {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($most_signed_up_products as $product): 
+                            <?php foreach ( $most_signed_up_all_time as $product ): 
                                 $product_name = get_the_title( $product->product_id );
                                 $edit_link = get_edit_post_link( $product->product_id );
-                                ?>
+                            ?>
                                 <tr>
                                     <td><a href="<?php echo esc_url($edit_link); ?>"><?php echo esc_html( $product_name ); ?></a></td>
                                     <td><?php echo esc_html( $product->customer_count ); ?></td>
