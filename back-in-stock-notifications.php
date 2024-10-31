@@ -84,6 +84,29 @@ function bisn_check_woocommerce_admin_notice() {
 add_action( 'admin_notices', 'bisn_check_woocommerce_admin_notice' );
 
 /**
+ * Clean up plugin data upon uninstallation.
+ *
+ * Deletes custom database tables created by the plugin.
+ *
+ * @since  1.0.0
+ * @return void
+ */
+function bisn_uninstall() {
+    global $wpdb;
+
+    // Define table names.
+    $waitlist_table         = $wpdb->prefix . 'bisn_waitlist';
+    $waitlist_history_table = $wpdb->prefix . 'bisn_waitlist_history';
+    $notifications_table    = $wpdb->prefix . 'bisn_notifications';
+
+    // Drop tables.
+    $wpdb->query( "DROP TABLE IF EXISTS $waitlist_table" );
+    $wpdb->query( "DROP TABLE IF EXISTS $waitlist_history_table" );
+    $wpdb->query( "DROP TABLE IF EXISTS $notifications_table" );
+}
+register_uninstall_hook( __FILE__, 'bisn_uninstall' );
+
+/**
  * Create waitlist table on plugin activation.
  * 
  * @since  1.0.0
