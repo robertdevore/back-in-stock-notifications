@@ -26,8 +26,8 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     public function __construct() {
         parent::__construct( [
-            'singular' => __( 'Waitlist Entry', 'bisn' ),
-            'plural'   => __( 'Waitlist Entries', 'bisn' ),
+            'singular' => esc_html__( 'Waitlist Entry', 'bisn' ),
+            'plural'   => esc_html__( 'Waitlist Entries', 'bisn' ),
             'ajax'     => false
         ] );
     }
@@ -35,7 +35,7 @@ class BISN_Waitlist_Table extends WP_List_Table {
     /**
      * Retrieve waitlist data from the database.
      */
-    public static function get_waitlist_data( $per_page = 10, $page_number = 1 ) {
+    public static function get_waitlist_data( $per_page = 20, $page_number = 1 ) {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'bisn_waitlist';
@@ -66,10 +66,10 @@ class BISN_Waitlist_Table extends WP_List_Table {
      */
     public function get_columns() {
         return [
-            'product_id' => __( 'Product', 'bisn' ),
-            'email'      => __( 'Email', 'bisn' ),
-            'signed_up'  => __( 'Signed Up', 'bisn' ),
-            'waiting'    => __( 'Waiting', 'bisn' ),
+            'product_id' => esc_html__( 'Product', 'bisn' ),
+            'email'      => esc_html__( 'Email', 'bisn' ),
+            'signed_up'  => esc_html__( 'Signed Up', 'bisn' ),
+            'waiting'    => esc_html__( 'Waiting', 'bisn' ),
         ];
     }
 
@@ -115,14 +115,13 @@ class BISN_Waitlist_Table extends WP_List_Table {
      * Render the waiting column showing time elapsed since sign-up, based on WordPress timezone.
      */
     protected function column_waiting( $item ) {
-        $signup_time = strtotime( $item['date_added'] );
+        $signup_time  = strtotime( $item['date_added'] );
         $current_time = current_time( 'timestamp' );
-
-        $interval = abs( $current_time - $signup_time );
-
+        $interval     = abs( $current_time - $signup_time );
         $waiting_time = '';
-        $days = floor( $interval / DAY_IN_SECONDS );
-        $hours = floor( ( $interval % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
+
+        $days    = floor( $interval / DAY_IN_SECONDS );
+        $hours   = floor( ( $interval % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
         $minutes = floor( ( $interval % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
 
         if ( $days ) $waiting_time .= $days . ' days, ';
@@ -136,13 +135,13 @@ class BISN_Waitlist_Table extends WP_List_Table {
      * Prepare the items for display in the table.
      */
     public function prepare_items() {
-        $this->_column_headers = array(
+        $this->_column_headers = [
             $this->get_columns(),
-            [], // Hidden columns if any
+            [],
             $this->get_sortable_columns()
-        );
+        ];
 
-        $per_page     = $this->get_items_per_page( 'waitlist_per_page', 10 );
+        $per_page     = $this->get_items_per_page( 'waitlist_per_page', 20 );
         $current_page = $this->get_pagenum();
         $total_items  = self::record_count();
 

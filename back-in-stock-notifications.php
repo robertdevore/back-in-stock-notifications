@@ -548,28 +548,49 @@ function bisn_waitlist_page() {
         function showTab(event, tabId) {
             event.preventDefault();
             
+            // Hide all tab contents
             var tabContent = document.getElementsByClassName("tab-content");
             for (var i = 0; i < tabContent.length; i++) {
                 tabContent[i].style.display = "none";
+                tabContent[i].style.opacity = "0";
             }
             
+            // Remove active class from all tabs
             var tabs = document.getElementsByClassName("nav-tab");
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove("nav-tab-active");
             }
             
-            document.getElementById(tabId).style.display = "block";
+            // Show the selected tab and add active class
+            var activeTab = document.getElementById(tabId);
+            activeTab.style.display = "block";
+            activeTab.style.opacity = "1";
             event.currentTarget.classList.add("nav-tab-active");
+            
+            // Store the active tab in localStorage
+            localStorage.setItem("activeTab", tabId);
         }
 
-        // Default display the Dashboard tab
         document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("dashboard").style.display = "block";
+            // Get the last active tab from localStorage, default to 'dashboard' if not set
+            var activeTab = localStorage.getItem("activeTab") || "dashboard";
+            
+            // Show only the active tab without delay
+            var tabContent = document.getElementById(activeTab);
+            tabContent.style.display = "block";
+            tabContent.style.opacity = "1";
+
+            // Trigger click on the saved active tab to open it and apply active class
+            document.querySelector(`a[href="#${activeTab}"]`).click();
         });
     </script>
 
     <!-- CSS for Dashboard Styling -->
     <style>
+        .tab-content {
+            display: none;
+            opacity: 0;
+        }
         .bisn-dashboard-row {
             display: flex;
             gap: 20px;
