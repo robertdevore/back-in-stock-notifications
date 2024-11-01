@@ -502,118 +502,6 @@ function bisn_waitlist_page() {
         </div>
     </div>
 
-    <!-- JavaScript for Tab Switching -->
-    <script type="text/javascript">
-        function showTab(event, tabId) {
-            event.preventDefault();
-
-            // Hide all tab contents
-            var tabContent = document.getElementsByClassName("tab-content");
-            for (var i = 0; i < tabContent.length; i++) {
-                tabContent[i].style.display = "none";
-                tabContent[i].style.opacity = "0";
-            }
-
-            // Remove active class from all tabs
-            var tabs = document.getElementsByClassName("nav-tab");
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove("nav-tab-active");
-            }
-
-            // Show the selected tab and add active class
-            var activeTab = document.getElementById(tabId);
-            activeTab.style.display = "block";
-            activeTab.style.opacity = "1";
-            event.currentTarget.classList.add("nav-tab-active");
-            
-            // Store the active tab in localStorage
-            localStorage.setItem("activeTab", tabId);
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get the last active tab from localStorage, default to 'dashboard' if not set.
-            var activeTab = localStorage.getItem("activeTab") || "dashboard";
-
-            // Show only the active tab without delay.
-            var tabContent = document.getElementById(activeTab);
-            tabContent.style.display = "block";
-            tabContent.style.opacity = "1";
-
-            // Trigger click on the saved active tab to open it and apply active class.
-            document.querySelector(`a[href="#${activeTab}"]`).click();
-        });
-    </script>
-
-    <!-- CSS for Dashboard Styling -->
-    <style>
-        .tab-content {
-            display: none;
-            opacity: 0;
-        }
-        .bisn-dashboard-row {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .bisn-dashboard-box {
-            flex: 1;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .bisn-dashboard-box h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 20px;
-            margin-top: 0;
-        }
-        .bisn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .bisn-grid-item {
-            background: #fff;
-            padding: 10px;
-            border-radius: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .bisn-stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #0073aa;
-            margin: 12px 0;
-        }
-        .bisn-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .bisn-table th, .bisn-table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-        .bisn-table th {
-            background-color: #f1f1f1;
-            font-weight: bold;
-        }
-        .bisn-table th:nth-of-type(2),
-        .bisn-table td:nth-of-type(2) {
-            text-align: right;
-        }
-        @media (max-width:768px) {
-            .bisn-dashboard-row {
-                flex-direction: column;
-            }
-        }
-    </style>
     <?php
 }
 
@@ -638,7 +526,6 @@ add_action( 'woocommerce_single_product_summary', 'bisn_add_product_id_field', 5
  * @return never
  */
 function bisn_export_csv() {
-    // Check for required permission and nonce if needed.
     if ( ! current_user_can( 'manage_woocommerce' ) ) {
         wp_die( esc_html__( 'Unauthorized request.', 'bisn' ) );
     }
@@ -646,10 +533,7 @@ function bisn_export_csv() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'bisn_waitlist_history';
 
-    // Get all unique email addresses from the table.
-    $emails = $wpdb->get_col( "SELECT DISTINCT email FROM $table_name WHERE email != ''" );
-
-    // Set headers to prompt download with date and time in the filename.
+    // Set headers for CSV download.
     header( 'Content-Type: text/csv; charset=utf-8' );
     header( 'Content-Disposition: attachment; filename=bisn_emails_' . date( 'Y-m-d_H-i-s' ) . '.csv' );
 
@@ -659,9 +543,15 @@ function bisn_export_csv() {
     // Add header row if needed.
     fputcsv( $output, [ 'Email' ] );
 
-    // Output each email as a row.
-    foreach ( $emails as $email ) {
-        fputcsv( $output, [ $email ] );
+    // Fetch emails in chunks.
+    $offset     = 0;
+    $batch_size = apply_filters( 'bisn_export_csv_batch_size', 500 );
+
+    while ( $emails = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT email FROM $table_name WHERE email != '' LIMIT %d OFFSET %d", $batch_size, $offset ) ) ) {
+        foreach ( $emails as $email ) {
+            fputcsv( $output, [ $email ] );
+        }
+        $offset += $batch_size;
     }
 
     // Close the output stream.
