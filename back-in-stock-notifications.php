@@ -287,7 +287,7 @@ add_action( 'wp_ajax_nopriv_bisn_add_to_waitlist', 'bisn_add_to_waitlist' );
 add_action( 'wp_ajax_bisn_add_to_waitlist', 'bisn_add_to_waitlist' );
 
 /**
- * Notify waitlist customers when product is restocked and log the notification.
+ * Notify waitlist customers when product is restocked and log the notification in batches.
  *
  * @param WC_Product $product WooCommerce product object.
  * 
@@ -301,26 +301,40 @@ function bisn_notify_waitlist_on_restock( $product ) {
         $table_name          = $wpdb->prefix . 'bisn_waitlist';
         $notifications_table = $wpdb->prefix . 'bisn_notifications';
         $product_id          = $product->get_id();
-        $emails              = $wpdb->get_results( $wpdb->prepare( "SELECT email FROM $table_name WHERE product_id = %d", $product_id ) );
+        $batch_size          = 50; // Number of emails to process per batch
+        $delay_seconds       = 1;  // Delay between each batch (in seconds)
+
+        // Get all emails for this product
+        $emails = $wpdb->get_results( 
+            $wpdb->prepare( "SELECT email FROM $table_name WHERE product_id = %d", $product_id ) 
+        );
 
         if ( $emails ) {
-            foreach ( $emails as $row ) {
-                $email = sanitize_email( $row->email );
+            // Split emails into batches
+            $email_batches = array_chunk( $emails, $batch_size );
 
-                // Send 'Back in Stock' notification email.
-                $email_instance = WC()->mailer()->emails['BISN_Back_In_Stock_Email'];
-                $email_instance->trigger( $email, $product );                
+            foreach ( $email_batches as $batch ) {
+                foreach ( $batch as $row ) {
+                    $email = sanitize_email( $row->email );
 
-                // Log the sent notification.
-                $wpdb->insert( $notifications_table, [
-                    'product_id' => $product_id,
-                    'email'      => $email,
-                    'send_date'  => current_time( 'mysql' ),
-                    'status'     => 'sent',
-                ]);
+                    // Send 'Back in Stock' notification email
+                    $email_instance = WC()->mailer()->emails['BISN_Back_In_Stock_Email'];
+                    $email_instance->trigger( $email, $product );
+
+                    // Log the sent notification
+                    $wpdb->insert( $notifications_table, [
+                        'product_id' => $product_id,
+                        'email'      => $email,
+                        'send_date'  => current_time( 'mysql' ),
+                        'status'     => 'sent',
+                    ]);
+                }
+
+                // Delay before processing the next batch
+                sleep( $delay_seconds );
             }
 
-            // Remove users from the waitlist after notification.
+            // Remove users from the waitlist after sending all notifications
             $wpdb->delete( $table_name, [ 'product_id' => $product_id ], [ '%d' ] );
         }
     }

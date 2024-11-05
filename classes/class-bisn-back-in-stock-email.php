@@ -41,17 +41,20 @@ class BISN_Back_In_Stock_Email extends WC_Email {
         if ( ! $email || ! $product ) {
             return;
         }
-    
-        $this->recipient    = $email;
-        $this->product_name = $product->get_name();
-        $this->product_url  = get_permalink( $product->get_id() );
-    
-        // Add product ID for use in the template.
-        $this->product_id   = $product->get_id();
-    
-        // Log for debugging.
-        error_log( 'Sending back-in-stock email for product ID: ' . $this->product_id );
-    
+
+        // Set the product ID for template use
+        $this->product_id = $product->get_id();
+
+        // Get the product name.
+        $product_name = $product->get_name();
+
+        // Set the recipient's email address.
+        $this->recipient = $email;
+
+        // Replace the placeholder in the subject line.
+        $this->subject = str_replace( '{product_name}', $product_name, $this->subject );
+
+        // Send the email.
         $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
     }
 
