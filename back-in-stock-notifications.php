@@ -648,3 +648,113 @@ function bisn_register_back_in_stock_email( $email_classes ) {
     return $email_classes;
 }
 add_filter( 'woocommerce_email_classes', 'bisn_register_back_in_stock_email' );
+
+/**
+ * Helper function to handle WordPress.com environment checks.
+ *
+ * @param string $plugin_slug     The plugin slug.
+ * @param string $learn_more_link The link to more information.
+ * 
+ * @since  1.1.0
+ * @return bool
+ */
+function wp_com_plugin_check( $plugin_slug, $learn_more_link ) {
+    // Check if the site is hosted on WordPress.com.
+    if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+        // Ensure the deactivate_plugins function is available.
+        if ( ! function_exists( 'deactivate_plugins' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        // Deactivate the plugin if in the admin area.
+        if ( is_admin() ) {
+            deactivate_plugins( $plugin_slug );
+
+            // Add a deactivation notice for later display.
+            add_option( 'wpcom_deactivation_notice', $learn_more_link );
+
+            // Prevent further execution.
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Auto-deactivate the plugin if running in an unsupported environment.
+ *
+ * @since  1.1.0
+ * @return void
+ */
+function wpcom_auto_deactivation() {
+    if ( wp_com_plugin_check( plugin_basename( __FILE__ ), 'https://robertdevore.com/why-this-plugin-doesnt-support-wordpress-com-hosting/' ) ) {
+        return; // Stop execution if deactivated.
+    }
+}
+add_action( 'plugins_loaded', 'wpcom_auto_deactivation' );
+
+/**
+ * Display an admin notice if the plugin was deactivated due to hosting restrictions.
+ *
+ * @since  1.1.0
+ * @return void
+ */
+function wpcom_admin_notice() {
+    $notice_link = get_option( 'wpcom_deactivation_notice' );
+    if ( $notice_link ) {
+        ?>
+        <div class="notice notice-error">
+            <p>
+                <?php
+                echo wp_kses_post(
+                    sprintf(
+                        __( 'My Plugin has been deactivated because it cannot be used on WordPress.com-hosted websites. %s', 'bisn' ),
+                        '<a href="' . esc_url( $notice_link ) . '" target="_blank" rel="noopener">' . __( 'Learn more', 'bisn' ) . '</a>'
+                    )
+                );
+                ?>
+            </p>
+        </div>
+        <?php
+        delete_option( 'wpcom_deactivation_notice' );
+    }
+}
+add_action( 'admin_notices', 'wpcom_admin_notice' );
+
+/**
+ * Prevent plugin activation on WordPress.com-hosted sites.
+ *
+ * @since  1.1.0
+ * @return void
+ */
+function wpcom_activation_check() {
+    if ( wp_com_plugin_check( plugin_basename( __FILE__ ), 'https://robertdevore.com/why-this-plugin-doesnt-support-wordpress-com-hosting/' ) ) {
+        // Display an error message and stop activation.
+        wp_die(
+            wp_kses_post(
+                sprintf(
+                    '<h1>%s</h1><p>%s</p><p><a href="%s" target="_blank" rel="noopener">%s</a></p>',
+                    __( 'Plugin Activation Blocked', 'bisn' ),
+                    __( 'This plugin cannot be activated on WordPress.com-hosted websites. It is restricted due to concerns about WordPress.com policies impacting the community.', 'bisn' ),
+                    esc_url( 'https://robertdevore.com/why-this-plugin-doesnt-support-wordpress-com-hosting/' ),
+                    __( 'Learn more', 'bisn' )
+                )
+            ),
+            esc_html__( 'Plugin Activation Blocked', 'bisn' ),
+            [ 'back_link' => true ]
+        );
+    }
+}
+register_activation_hook( __FILE__, 'wpcom_activation_check' );
+
+/**
+ * Add a deactivation flag when the plugin is deactivated.
+ *
+ * @since  1.1.0
+ * @return void
+ */
+function wpcom_deactivation_flag() {
+    add_option( 'wpcom_deactivation_notice', 'https://robertdevore.com/why-this-plugin-doesnt-support-wordpress-com-hosting/' );
+}
+register_deactivation_hook( __FILE__, 'wpcom_deactivation_flag' );
