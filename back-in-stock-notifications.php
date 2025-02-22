@@ -11,7 +11,7 @@
  * Plugin Name: Back In Stock Notifications for WooCommerce®
  * Description: Automatically notify customers when their favorite products are restocked, and track what products are most in demand.
  * Plugin URI:  https://github.com/robertdevore/back-in-stock-notifications/
- * Version:     1.0.1
+ * Version:     1.0.2
  * Author:      Robert DeVore
  * Author URI:  https://robertdevore.com/
  * License:     GPL-2.0+
@@ -60,7 +60,7 @@ use RobertDevore\WPComCheck\WPComPluginHandler;
 new WPComPluginHandler( plugin_basename( __FILE__ ), 'https://robertdevore.com/why-this-plugin-doesnt-support-wordpress-com-hosting/' );
 
 // Plugin version.
-define( 'BACK_IN_STOCK_NOTIFICATIONS_VERSION', '1.0.1' );
+define( 'BACK_IN_STOCK_NOTIFICATIONS_VERSION', '1.0.2' );
 
 /**
  * Check if WooCommerce is active, and prevent activation if it's not.
