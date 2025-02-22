@@ -2,15 +2,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Back In Stock Notifications for WooCommerce®\n"
-"POT-Creation-Date: 2024-10-31 12:56-0400\n"
-"PO-Revision-Date: 2024-10-31 12:56-0400\n"
+"POT-Creation-Date: 2025-02-21 19:56-0500\n"
+"PO-Revision-Date: 2025-02-21 19:56-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.5\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: back-in-stock-notifications.php\n"
@@ -22,117 +22,117 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 "X-Poedit-SearchPathExcluded-1: vendor\n"
 
-#: back-in-stock-notifications.php:68
+#: back-in-stock-notifications.php:78
 msgid ""
 "Back In Stock Notifications requires WooCommerce to be installed and active. "
 "Please activate WooCommerce and try again."
 msgstr ""
 
-#: back-in-stock-notifications.php:69
+#: back-in-stock-notifications.php:79
 msgid "Plugin Activation Error"
 msgstr ""
 
-#: back-in-stock-notifications.php:84
+#: back-in-stock-notifications.php:94
 msgid ""
 "Back In Stock Notifications requires WooCommerce to be active. Please "
 "activate WooCommerce to use this plugin."
 msgstr ""
 
-#: back-in-stock-notifications.php:258
+#: back-in-stock-notifications.php:268
 msgid "Invalid email address."
 msgstr ""
 
-#: back-in-stock-notifications.php:284
+#: back-in-stock-notifications.php:294
 msgid "You have been added to the waitlist."
 msgstr ""
 
-#: back-in-stock-notifications.php:339
+#: back-in-stock-notifications.php:363
 msgid "Back In Stock Waitlist"
 msgstr ""
 
-#: back-in-stock-notifications.php:340
+#: back-in-stock-notifications.php:364
 msgid "Back In Stock"
 msgstr ""
 
-#: back-in-stock-notifications.php:368
+#: back-in-stock-notifications.php:392
 msgid "Back In Stock Notifications"
 msgstr ""
 
-#: back-in-stock-notifications.php:374
+#: back-in-stock-notifications.php:398
 msgid "Export Emails"
 msgstr ""
 
-#: back-in-stock-notifications.php:378
+#: back-in-stock-notifications.php:402
 msgid "Export Data"
 msgstr ""
 
-#: back-in-stock-notifications.php:384
+#: back-in-stock-notifications.php:408
 msgid "Dashboard"
 msgstr ""
 
-#: back-in-stock-notifications.php:385 bisn-woocommerce-my-account.php:127
+#: back-in-stock-notifications.php:409 bisn-woocommerce-my-account.php:129
 msgid "Waitlist"
 msgstr ""
 
-#: back-in-stock-notifications.php:393
+#: back-in-stock-notifications.php:417
 msgid "Notifications"
 msgstr ""
 
-#: back-in-stock-notifications.php:397
+#: back-in-stock-notifications.php:421
 msgid "Sent Last Month"
 msgstr ""
 
-#: back-in-stock-notifications.php:401
+#: back-in-stock-notifications.php:425
 msgid "Sent Today"
 msgstr ""
 
-#: back-in-stock-notifications.php:405
+#: back-in-stock-notifications.php:429
 msgid "Queued"
 msgstr ""
 
-#: back-in-stock-notifications.php:410
+#: back-in-stock-notifications.php:434
 msgid "Sign-ups"
 msgstr ""
 
-#: back-in-stock-notifications.php:414
+#: back-in-stock-notifications.php:438
 msgid "Sign-ups Last Month"
 msgstr ""
 
-#: back-in-stock-notifications.php:418
+#: back-in-stock-notifications.php:442
 msgid "Signed up Today"
 msgstr ""
 
-#: back-in-stock-notifications.php:426
+#: back-in-stock-notifications.php:450
 msgid "Most Wanted"
 msgstr ""
 
-#: back-in-stock-notifications.php:430 back-in-stock-notifications.php:452
-#: back-in-stock-notifications.php:474 bisn-woocommerce-my-account.php:52
-#: classes/class-bisn-waitlist-table.php:69
+#: back-in-stock-notifications.php:454 back-in-stock-notifications.php:476
+#: back-in-stock-notifications.php:498 bisn-woocommerce-my-account.php:52
+#: classes/class-bisn-waitlist-table.php:78
 msgid "Product"
 msgstr ""
 
-#: back-in-stock-notifications.php:431 back-in-stock-notifications.php:475
+#: back-in-stock-notifications.php:455 back-in-stock-notifications.php:499
 msgid "Customers"
 msgstr ""
 
-#: back-in-stock-notifications.php:448
+#: back-in-stock-notifications.php:472
 msgid "Most Overdue"
 msgstr ""
 
-#: back-in-stock-notifications.php:453
+#: back-in-stock-notifications.php:477
 msgid "Days Waiting"
 msgstr ""
 
-#: back-in-stock-notifications.php:470
+#: back-in-stock-notifications.php:494
 msgid "Most Signed-up"
 msgstr ""
 
-#: back-in-stock-notifications.php:643
+#: back-in-stock-notifications.php:554
 msgid "Unauthorized request."
 msgstr ""
 
-#: back-in-stock-notifications.php:683
+#: back-in-stock-notifications.php:597
 msgid "You do not have permission to access this page."
 msgstr ""
 
@@ -160,11 +160,11 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: bisn-woocommerce-my-account.php:87
+#: bisn-woocommerce-my-account.php:89
 msgid "You are not currently waitlisted for any products."
 msgstr ""
 
-#: bisn-woocommerce-my-account.php:165
+#: bisn-woocommerce-my-account.php:167
 msgid "You have been removed from the waitlist for this product."
 msgstr ""
 
@@ -192,29 +192,29 @@ msgstr ""
 msgid "Waitlist Entries"
 msgstr ""
 
-#: classes/class-bisn-waitlist-table.php:70
+#: classes/class-bisn-waitlist-table.php:79
 msgid "Email"
 msgstr ""
 
-#: classes/class-bisn-waitlist-table.php:71
+#: classes/class-bisn-waitlist-table.php:80
 msgid "Signed Up"
 msgstr ""
 
-#: classes/class-bisn-waitlist-table.php:72
+#: classes/class-bisn-waitlist-table.php:81
 msgid "Waiting"
 msgstr ""
 
-#: templates/emails/back-in-stock-notification.php:17
+#: classes/templates/emails/back-in-stock-notification.php:17
 msgid "We are sorry, but we could not retrieve the product details."
 msgstr ""
 
-#: templates/emails/back-in-stock-notification.php:22
-#: templates/emails/plain/back-in-stock-notification.php:12
+#: classes/templates/emails/back-in-stock-notification.php:22
+#: classes/templates/emails/plain/back-in-stock-notification.php:12
 #, php-format
 msgid "Great news! \"%s\" is now back in stock and available for purchase."
 msgstr ""
 
-#: templates/emails/back-in-stock-notification.php:36
+#: classes/templates/emails/back-in-stock-notification.php:36
 msgid "Shop Now"
 msgstr ""
 
