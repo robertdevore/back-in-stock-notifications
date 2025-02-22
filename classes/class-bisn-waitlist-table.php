@@ -34,12 +34,15 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Retrieve waitlist data from the database.
+     * 
+     * @since  1.0.0
+     * @return mixed
      */
     public static function get_waitlist_data( $per_page = 20, $page_number = 1 ) {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'bisn_waitlist';
-        $sql = "SELECT * FROM $table_name";
+        $sql        = "SELECT * FROM $table_name";
 
         if ( ! empty( $_REQUEST['orderby'] ) ) {
             $sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
@@ -54,6 +57,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Get total waitlist item count.
+     * 
+     * @since  1.0.0
+     * @return ?string
      */
     public static function record_count() {
         global $wpdb;
@@ -63,6 +69,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Define columns.
+     * 
+     * @since  1.0.0
+     * @return array
      */
     public function get_columns() {
         return [
@@ -75,6 +84,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Render the product_id column with a clickable link to the Edit screen.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     protected function column_product_id( $item ) {
         $product_id = absint( $item['product_id'] );
@@ -90,6 +102,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Render the email column with a clickable link to the user profile (if associated).
+     * 
+     * @since  1.0.0
+     * @return string
      */
     protected function column_email( $item ) {
         $user_id = absint( $item['user_id'] );
@@ -105,6 +120,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Render the signed_up column with a readable date and time based on WordPress timezone.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     protected function column_signed_up( $item ) {
         $timestamp = strtotime( $item['date_added'] );
@@ -113,6 +131,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Render the waiting column showing time elapsed since sign-up, based on WordPress timezone.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     protected function column_waiting( $item ) {
         $signup_time  = strtotime( $item['date_added'] );
@@ -133,6 +154,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Prepare the items for display in the table.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function prepare_items() {
         $this->_column_headers = [
@@ -155,6 +179,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Display sortable columns.
+     * 
+     * @since  1.0.0
+     * @return array
      */
     public function get_sortable_columns() {
         return [
@@ -165,6 +192,9 @@ class BISN_Waitlist_Table extends WP_List_Table {
 
     /**
      * Default column rendering.
+     * 
+     * @since  1.0.0
+     * @return mixed
      */
     protected function column_default( $item, $column_name ) {
         return $item[ $column_name ];

@@ -26,6 +26,9 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
+// Include helper functions.
+require 'includes/helper-functions.php';
+
 // Include the custom waitlist table class.
 require_once plugin_dir_path( __FILE__ ) . 'classes/class-bisn-waitlist-table.php';
 
@@ -272,7 +275,7 @@ function bisn_add_to_waitlist() {
     // Get the user ID or set it to null.
     $user_id = get_current_user_id() ?: null;
 
-    // Insert into current waitlist table
+    // Insert into current waitlist table.
     $wpdb->insert( $table_name, [
         'product_id' => $product_id,
         'email'      => $email,
@@ -280,7 +283,7 @@ function bisn_add_to_waitlist() {
         'date_added' => current_time( 'mysql' ),
     ]);
 
-    // Insert into history table
+    // Insert into history table.
     $wpdb->insert( $history_table_name, [
         'product_id'  => $product_id,
         'email'       => $email,
@@ -311,13 +314,13 @@ function bisn_notify_waitlist_on_restock( $product ) {
         $batch_size          = 50; // Number of emails to process per batch
         $delay_seconds       = 1;  // Delay between each batch (in seconds)
 
-        // Get all emails for this product
+        // Get all emails for this product.
         $emails = $wpdb->get_results( 
             $wpdb->prepare( "SELECT email FROM $table_name WHERE product_id = %d", $product_id ) 
         );
 
         if ( $emails ) {
-            // Split emails into batches
+            // Split emails into batches.
             $email_batches = array_chunk( $emails, $batch_size );
 
             foreach ( $email_batches as $batch ) {
@@ -328,7 +331,7 @@ function bisn_notify_waitlist_on_restock( $product ) {
                     $email_instance = WC()->mailer()->emails['BISN_Back_In_Stock_Email'];
                     $email_instance->trigger( $email, $product );
 
-                    // Log the sent notification
+                    // Log the sent notification.
                     $wpdb->insert( $notifications_table, [
                         'product_id' => $product_id,
                         'email'      => $email,
@@ -337,11 +340,11 @@ function bisn_notify_waitlist_on_restock( $product ) {
                     ]);
                 }
 
-                // Delay before processing the next batch
+                // Delay before processing the next batch.
                 sleep( $delay_seconds );
             }
 
-            // Remove users from the waitlist after sending all notifications
+            // Remove users from the waitlist after sending all notifications.
             $wpdb->delete( $table_name, [ 'product_id' => $product_id ], [ '%d' ] );
         }
     }
@@ -596,7 +599,7 @@ function bisn_export_dashboard_csv() {
 
     global $wpdb;
     
-    // Get data for most wanted, most overdue, and most signed-up products
+    // Get data for most wanted, most overdue, and most signed-up products.
     $table_name         = $wpdb->prefix . 'bisn_waitlist';
     $history_table_name = $wpdb->prefix . 'bisn_waitlist_history';
 
@@ -649,6 +652,17 @@ function bisn_export_dashboard_csv() {
 }
 add_action( 'wp_ajax_bisn_export_dashboard_csv', 'bisn_export_dashboard_csv' );
 
+/**
+ * Registers the Back In Stock email class with WooCommerce.
+ *
+ * This function includes the required email class file and adds an instance
+ * of `BISN_Back_In_Stock_Email` to the list of WooCommerce email classes.
+ *
+ * @param array $email_classes Existing WooCommerce email classes.
+ * 
+ * @since  1.0.0
+ * @return array Modified list of WooCommerce email classes including Back In Stock.
+ */
 function bisn_register_back_in_stock_email( $email_classes ) {
     require_once plugin_dir_path( __FILE__ ) . 'classes/class-bisn-back-in-stock-email.php';
     $email_classes['BISN_Back_In_Stock_Email'] = new BISN_Back_In_Stock_Email();

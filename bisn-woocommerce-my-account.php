@@ -46,15 +46,15 @@ function bisn_account_waitlist_endpoint_content() {
 
     // Display the table if there are any waitlist entries.
     if ( $user_waitlist ) {
-        echo '<h2>' . esc_html__( 'Your Waitlisted Products', 'bisn' ) . '</h2>';
-        echo '<table class="shop_table shop_table_responsive">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Product', 'bisn' ) . '</th>';
-        echo '<th>' . esc_html__( 'Signup Date', 'bisn' ) . '</th>';
-        echo '<th>' . esc_html__( 'Waiting Time', 'bisn' ) . '</th>';
-        echo '<th>' . esc_html__( 'Action', 'bisn' ) . '</th>';
-        echo '</tr></thead>';
-        echo '<tbody>';
+        $html  = '<h2>' . esc_html__( 'Your Waitlisted Products', 'bisn' ) . '</h2>';
+        $html .= '<table class="shop_table shop_table_responsive">';
+        $html .= '<thead><tr>';
+        $html .= '<th>' . esc_html__( 'Product', 'bisn' ) . '</th>';
+        $html .= '<th>' . esc_html__( 'Signup Date', 'bisn' ) . '</th>';
+        $html .= '<th>' . esc_html__( 'Waiting Time', 'bisn' ) . '</th>';
+        $html .= '<th>' . esc_html__( 'Action', 'bisn' ) . '</th>';
+        $html .= '</tr></thead>';
+        $html .= '<tbody>';
 
         foreach ( $user_waitlist as $entry ) {
             $product_id = $entry->product_id;
@@ -69,20 +69,22 @@ function bisn_account_waitlist_endpoint_content() {
             $signup_date  = date_i18n( 'F j, Y', strtotime( $entry->date_added ) );
             $waiting_time = human_time_diff( strtotime( $entry->date_added ), current_time( 'timestamp' ) );
 
-            echo '<tr>';
-            echo '<td><a href="' . esc_url( $product_link ) . '">' . esc_html( $product_name ) . '</a></td>';
-            echo '<td>' . esc_html( $signup_date ) . '</td>';
-            echo '<td>' . esc_html( $waiting_time ) . ' ' . esc_html__( 'ago', 'bisn' ) . '</td>';
-            echo '<td>';
-            echo '<form method="post" action="">';
-            echo '<input type="hidden" name="product_id" value="' . esc_attr( $product_id ) . '">';
-            echo '<button type="submit" name="bisn_remove_waitlist" class="button">' . esc_html__( 'Remove', 'bisn' ) . '</button>';
-            echo '</form>';
-            echo '</td>';
-            echo '</tr>';
+            $html .= '<tr>';
+            $html .= '<td><a href="' . esc_url( $product_link ) . '">' . esc_html( $product_name ) . '</a></td>';
+            $html .= '<td>' . esc_html( $signup_date ) . '</td>';
+            $html .= '<td>' . esc_html( $waiting_time ) . ' ' . esc_html__( 'ago', 'bisn' ) . '</td>';
+            $html .= '<td>';
+            $html .= '<form method="post" action="">';
+            $html .= '<input type="hidden" name="product_id" value="' . esc_attr( $product_id ) . '">';
+            $html .= '<button type="submit" name="bisn_remove_waitlist" class="button">' . esc_html__( 'Remove', 'bisn' ) . '</button>';
+            $html .= '</form>';
+            $html .= '</td>';
+            $html .= '</tr>';
         }
 
-        echo '</tbody></table>';
+        $html .= '</tbody></table>';
+
+        echo wp_kses( $html, bisn_allowed_tags() );
     } else {
         echo '<p>' . esc_html__( 'You are not currently waitlisted for any products.', 'bisn' ) . '</p>';
     }

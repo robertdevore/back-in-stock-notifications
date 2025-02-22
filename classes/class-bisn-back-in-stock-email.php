@@ -28,12 +28,12 @@ class BISN_Back_In_Stock_Email extends WC_Email {
         $this->template_html  = 'emails/back-in-stock-notification.php';
         $this->template_plain = 'emails/plain/back-in-stock-notification.php';
 
-        // Add template path to override WooCommerce templates
+        // Add template path to override WooCommerce templates.
         $this->template_base = plugin_dir_path( __FILE__ ) . 'templates/';
 
         parent::__construct();
 
-        // Triggers this email when 'bisn_send_back_in_stock_email' is called
+        // Triggers this email when 'bisn_send_back_in_stock_email' is called.
         add_action( 'bisn_send_back_in_stock_email_notification', [ $this, 'trigger' ], 10, 2 );
     }
 
@@ -42,7 +42,7 @@ class BISN_Back_In_Stock_Email extends WC_Email {
             return;
         }
 
-        // Set the product ID for template use
+        // Set the product ID for template use.
         $this->product_id = $product->get_id();
 
         // Get the product name.
